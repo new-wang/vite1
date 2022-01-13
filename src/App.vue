@@ -24,7 +24,7 @@ fetch("/api/users")
   .then(response => response.json())
   .then(json => console.log('proxy:',json));
 
-console.log('VITE_TOKEN',import.meta.env.VITE_TOKEN)
+// console.log('VITE_TOKEN',import.meta.env.VITE_TOKEN)
 
 export default {
     name: "App",
