@@ -1,17 +1,48 @@
-name: GitHub Actions Demo
-on: [push]
+name: 打包应用并上传阿里云
+
+on:
+  push:
+    branches:
+      - "main"
+
 jobs:
-  Explore-GitHub-Actions:
+  build:
+    # runs-on 指定job任务运行所需要的虚拟机环境(必填字段)
     runs-on: ubuntu-latest
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Check out repository code
-        uses: actions/checkout@v2
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+      # 获取源码
+      - name: 迁出代码
+        # 使用action库  actions/checkout获取源码
+        uses: actions/checkout@master
+      # 安装Node10
+      
+      - name: 安装node.js
+        # 使用action库  actions/setup-node安装node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.0.0
+
+      # 安装依赖
+      - name: 安装依赖
+        run: npm install
+
+      # 打包
+      - name: 打包
+        run: npm run build
+
+      # 上传阿里云
+      - name: 发布到阿里云
+        uses: easingthemes/ssh-deploy@v2.1.1
+        env:
+          # 私钥
+          SSH_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          # scp参数
+          ARGS: "-avzr --delete"
+          # 源目录
+          SOURCE: "dist"
+          # 服务器ip：换成你的服务器IP
+          REMOTE_HOST: "47.104.154.73"
+          # 用户
+          REMOTE_USER: "root"
+          # 目标地址
+          TARGET: "/root/home/vue-in-action"
